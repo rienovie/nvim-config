@@ -113,7 +113,7 @@ vim.keymap.set("n", "<leader>q", vim.diagnostic.setloclist, { desc = "Open diagn
 vim.keymap.set("t", "<Esc><Esc>", "<C-\\><C-n>", { desc = "Exit terminal mode" })
 
 -- Smart quit
--- TODO need to update, is a little wonky sometimes
+-- TODO: need to update, is a little wonky sometimes
 
 -- Define the function
 local function smartQuit()
@@ -194,10 +194,20 @@ end
 
 --rienovie      \/keybinds\/      /\bash files & functions/\
 
-vim.keymap.set("n", "<C-d>", "<C-d>zz", { desc = "Center line when moving down" })
-vim.keymap.set("n", "<C-u>", "<C-u>zz", { desc = "Center line when moving up" })
-vim.keymap.set({ "n", "i", "v" }, "<C-S-up>", "<cmd>:m -2<CR>", { desc = "Move line/selection up" })
-vim.keymap.set({ "n", "i", "v" }, "<C-S-down>", "<cmd>:m +1<CR>", { desc = "Move line/selection down" })
+vim.keymap.set({ "n", "v" }, "<C-j>", '<cmd>call smoothie#do("<C-D>zz")<CR>', { desc = "Center line when moving down" })
+vim.keymap.set({ "n", "v" }, "<C-k>", '<cmd>call smoothie#do("<C-U>zz")<CR>', { desc = "Center line when moving up" })
+
+vim.keymap.set("i", "<A-l>", "<right>", { noremap = true })
+vim.keymap.set("i", "<A-h>", "<left>", { noremap = true })
+vim.keymap.set("i", "<A-k>", "<up>", { noremap = true })
+vim.keymap.set("i", "<A-j>", "<down>", { noremap = true })
+
+vim.keymap.set("i", "<S-Backspace>", "<Delete>")
+
+--TODO: need to make this actually work with multiple lines, it's a but more involved
+vim.keymap.set({ "n", "i", "v" }, "<S-A-j>", "<cmd>:m +1<CR>", { desc = "Move line/selection down" })
+vim.keymap.set({ "n", "i", "v" }, "<S-A-k>", "<cmd>:m -2<CR>", { desc = "Move line/selection up" })
+
 vim.keymap.set("n", "<F2>", "<cmd>:edit ~/.config/nvim/init.lua<CR>", { desc = "Edit init.lua file" })
 vim.keymap.set({ "n", "i" }, "<F5>", "<cmd>:w<CR>", { desc = "Save current file" })
 vim.keymap.set("n", "<leader>p", '"_dP', { desc = "[P]aste without overwriting buffer" })
@@ -206,13 +216,14 @@ vim.keymap.set({ "n", "i" }, "<F3>", bashList, { desc = "Run a bash script" })
 vim.keymap.set("n", "<C-f>", '<cmd>:lua require("harpoon.ui").toggle_quick_menu()<CR>')
 vim.keymap.set("n", "<F6>", '<cmd>:lua require("harpoon.mark").toggle_file()<CR>')
 
-vim.keymap.set("n", "<C-right>", '<cmd>:lua require("harpoon.ui").nav_next()<CR>')
-vim.keymap.set("n", "<C-left>", '<cmd>:lua require("harpoon.ui").nav_prev()<CR>')
+vim.keymap.set("n", "<C-n>", '<cmd>:lua require("harpoon.ui").nav_next()<CR>')
+vim.keymap.set("n", "<C-p>", '<cmd>:lua require("harpoon.ui").nav_prev()<CR>')
 
-vim.keymap.set({ "n", "i" }, "<A-right>", "<cmd>:wincmd l<CR>")
-vim.keymap.set({ "n", "i" }, "<A-left>", "<cmd>:wincmd h<CR>")
-vim.keymap.set({ "n", "i" }, "<A-up>", "<cmd>:wincmd k<CR>")
-vim.keymap.set({ "n", "i" }, "<A-down>", "<cmd>:wincmd j<CR>")
+--TODO: make it change to normal mode when switching
+vim.keymap.set({ "n", "i" }, "<A-d>", "<Esc><cmd>:wincmd l<CR>")
+vim.keymap.set({ "n", "i" }, "<A-a>", "<Esc><cmd>:wincmd h<CR>")
+vim.keymap.set({ "n", "i" }, "<A-w>", "<Esc><cmd>:wincmd k<CR>")
+vim.keymap.set({ "n", "i" }, "<A-s>", "<Esc><cmd>:wincmd j<CR>")
 
 vim.keymap.set("i", '"', function()
 	smoothDoubleQuotes('"')
@@ -246,6 +257,9 @@ vim.keymap.set("i", ">", function()
 end)
 
 vim.keymap.set("n", "<F3>", '<cmd>:lua require("Basher").showMainWin()<CR>')
+
+--for some reason puts a capital "A" and tries to execute it
+vim.keymap.set("n", "<C-F5>", "<cmd>@:<CR><Backspace><Esc>A")
 
 vim.keymap.set("n", "<F7>", '<cmd>:lua require("dapui").toggle()<CR>')
 vim.keymap.set("n", "<F8>", '<cmd>:lua require("dap").toggle_breakpoint()<CR>')
@@ -304,6 +318,8 @@ require("lazy").setup({
 
 	-- "gc" to comment visual regions/lines
 	{ "numToStr/Comment.nvim", opts = {} },
+
+	{ "psliwka/vim-smoothie" },
 
 	{
 		"folke/trouble.nvim",
@@ -926,7 +942,7 @@ require("lazy").setup({
 			-- Load the colorscheme here.
 			-- Like many other themes, this one has different styles, and you could load
 			-- any other, such as 'tokyonight-storm', 'tokyonight-moon', or 'tokyonight-day'.
-			vim.cmd.colorscheme("tokyonight-night")
+			vim.cmd.colorscheme("randomhue")
 
 			-- You can configure highlights by doing something like:
 			vim.cmd.hi("Comment gui=none")
@@ -1020,11 +1036,11 @@ require("lazy").setup({
 	--  Here are some example plugins that I've included in the Kickstart repository.
 	--  Uncomment any of the lines below to enable them (you will need to restart nvim).
 	--
-	-- require 'kickstart.plugins.debug',
+	-- require("kickstart.plugins.debug"),
 	require("kickstart.plugins.indent_line"),
-	-- require 'kickstart.plugins.lint',
-	-- require 'kickstart.plugins.autopairs',
-	-- require 'kickstart.plugins.neo-tree',
+	-- require("kickstart.plugins.lint"),
+	-- require("kickstart.plugins.autopairs"),
+	require("kickstart.plugins.neo-tree"),
 	-- require 'kickstart.plugins.gitsigns', -- adds gitsigns recommend keymaps
 
 	{ "ThePrimeagen/harpoon", opts = {} },
