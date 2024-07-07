@@ -931,6 +931,10 @@ require("lazy").setup({
 		end,
 	},
 
+	{ "john2x/flatui.vim" },
+	{ "lifepillar/vim-colortemplate" },
+	{ "DownloadedThemes", dir = "~/.config/nvim/themes" },
+
 	{ -- You can easily change to a different colorscheme.
 		-- Change the name of the colorscheme plugin below, and then
 		-- change the command in the config to whatever the name of that colorscheme is.
@@ -942,7 +946,7 @@ require("lazy").setup({
 			-- Load the colorscheme here.
 			-- Like many other themes, this one has different styles, and you could load
 			-- any other, such as 'tokyonight-storm', 'tokyonight-moon', or 'tokyonight-day'.
-			vim.cmd.colorscheme("retrobox")
+			vim.cmd.colorscheme("murphy")
 
 			-- You can configure highlights by doing something like:
 			vim.cmd.hi("Comment gui=none")
@@ -1045,7 +1049,7 @@ require("lazy").setup({
 
 	{ "ThePrimeagen/harpoon", opts = {} },
 
-	{ "Basher", dir = "~/projects/Basher", opts = {} }, --TODO working on my custom plugin
+	{ "Basher", dir = "~/projects/Basher", opts = { funOnStart = false, pathMaxDirs = 0 } }, --TODO working on my custom plugin
 
 	{ "mfussenegger/nvim-dap" },
 
