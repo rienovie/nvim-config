@@ -931,9 +931,8 @@ require("lazy").setup({
 		end,
 	},
 
-	{ "john2x/flatui.vim" },
-	{ "lifepillar/vim-colortemplate" },
 	{ "DownloadedThemes", dir = "~/.config/nvim/themes" },
+	{ "bdesham/biogoo" },
 
 	{ -- You can easily change to a different colorscheme.
 		-- Change the name of the colorscheme plugin below, and then
@@ -946,7 +945,7 @@ require("lazy").setup({
 			-- Load the colorscheme here.
 			-- Like many other themes, this one has different styles, and you could load
 			-- any other, such as 'tokyonight-storm', 'tokyonight-moon', or 'tokyonight-day'.
-			vim.cmd.colorscheme("murphy")
+			vim.cmd.colorscheme("biogoo")
 
 			-- You can configure highlights by doing something like:
 			vim.cmd.hi("Comment gui=none")
