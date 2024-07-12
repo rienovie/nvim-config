@@ -156,7 +156,7 @@ local function bashList()
 	end)
 end
 
-SmoothDoubleCharChart = {
+local smoothDoubleCharChart = {
 	['"'] = '"',
 	["'"] = "'",
 	["("] = ")",
@@ -180,7 +180,7 @@ local function smoothDoubleQuotes(char)
 	elseif not (char == ")" or char == "]" or char == ">" or char == "}") then
 		local newLine = string.sub(curLine, 1, pos[3] - 1)
 			.. char
-			.. SmoothDoubleCharChart[char]
+			.. smoothDoubleCharChart[char]
 			.. string.sub(curLine, pos[3])
 		vim.api.nvim_set_current_line(newLine)
 		vim.api.nvim_win_set_cursor(curWin, { pos[2], pos[3] })
@@ -259,6 +259,7 @@ end)
 vim.keymap.set("n", "<F3>", '<cmd>:lua require("Basher").showMainWin()<CR>')
 
 --for some reason puts a capital "A" and tries to execute it
+--found this is because colorscheme menu does this, TODO: fix this for other options
 vim.keymap.set("n", "<C-F5>", "<cmd>@:<CR><Backspace><Esc>A")
 
 vim.keymap.set("n", "<F7>", '<cmd>:lua require("dapui").toggle()<CR>')
@@ -320,6 +321,19 @@ require("lazy").setup({
 	{ "numToStr/Comment.nvim", opts = {} },
 
 	{ "psliwka/vim-smoothie" },
+
+	{
+		"nvim-neo-tree/neo-tree.nvim",
+		dependencies = {
+			"nvim-lua/plenary.nvim",
+			"nvim-tree/nvim-web-devicons",
+			"MunifTanjim/nui.nvim",
+			"3rd/image.nvim",
+		},
+		config = function()
+			vim.cmd("Neotree")
+		end,
+	},
 
 	{
 		"folke/trouble.nvim",
@@ -1043,7 +1057,7 @@ require("lazy").setup({
 	require("kickstart.plugins.indent_line"),
 	-- require("kickstart.plugins.lint"),
 	-- require("kickstart.plugins.autopairs"),
-	require("kickstart.plugins.neo-tree"),
+	-- require("kickstart.plugins.neo-tree"),
 	-- require 'kickstart.plugins.gitsigns', -- adds gitsigns recommend keymaps
 
 	{ "ThePrimeagen/harpoon", opts = {} },
