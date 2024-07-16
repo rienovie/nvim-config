@@ -114,8 +114,6 @@ vim.keymap.set("t", "<Esc><Esc>", "<C-\\><C-n>", { desc = "Exit terminal mode" }
 
 -- Smart quit
 -- TODO: need to update, is a little wonky sometimes
-
--- Define the function
 local function smartQuit()
 	if vim.bo[vim.api.nvim_get_current_buf()].modified then
 		vim.ui.select({ "Save and exit", "Exit without saving", "Cancel" }, {
@@ -134,27 +132,29 @@ local function smartQuit()
 	end
 end
 
-local function bashList()
-	local bashFiles = {
-		["BullScript ASM Build"] = "~/projects/BullScript/ASM/asmBuildScript.sh",
-		--["AumenType gdExtension Build"] = "~/projects/godot/4.2/AugmenType/src/cpp/extensionBuild.sh",
-	}
-
-	local names = {}
-	for name in pairs(bashFiles) do
-		table.insert(names, name)
-	end
-
-	table.insert(names, "Cancel")
-
-	vim.ui.select(names, { prompt = "Choose bash file to run." }, function(choice)
-		if choice == "Cancel" then
-			return
-		else
-			vim.cmd("!sh " .. bashFiles[choice])
-		end
-	end)
-end
+-- What I used before Basher
+--
+-- local function bashList()
+-- 	local bashFiles = {
+-- 		["BullScript ASM Build"] = "~/projects/BullScript/ASM/asmBuildScript.sh",
+-- 		--["AumenType gdExtension Build"] = "~/projects/godot/4.2/AugmenType/src/cpp/extensionBuild.sh",
+-- 	}
+--
+-- 	local names = {}
+-- 	for name in pairs(bashFiles) do
+-- 		table.insert(names, name)
+-- 	end
+--
+-- 	table.insert(names, "Cancel")
+--
+-- 	vim.ui.select(names, { prompt = "Choose bash file to run." }, function(choice)
+-- 		if choice == "Cancel" then
+-- 			return
+-- 		else
+-- 			vim.cmd("!sh " .. bashFiles[choice])
+-- 		end
+-- 	end)
+-- end
 
 local smoothDoubleCharChart = {
 	['"'] = '"',
@@ -169,6 +169,7 @@ local smoothDoubleCharChart = {
 	["}"] = "}",
 }
 
+-- TODO: have a modifier key or something that'll let me ignore this somehow
 local function smoothDoubleQuotes(char)
 	local curWin = vim.api.nvim_get_current_win()
 	local pos = vim.fn.getcursorcharpos(curWin)
@@ -204,7 +205,8 @@ vim.keymap.set("i", "<A-j>", "<down>", { noremap = true })
 
 vim.keymap.set("i", "<S-Backspace>", "<Delete>")
 
---TODO: need to make this actually work with multiple lines, it's a but more involved
+-- TODO: need to make this actually work with multiple lines, it's a but more involved
+-- Maybe not? I think I rememeber seeing something like dp worked?
 vim.keymap.set({ "n", "i", "v" }, "<S-A-j>", "<cmd>:m +1<CR>", { desc = "Move line/selection down" })
 vim.keymap.set({ "n", "i", "v" }, "<S-A-k>", "<cmd>:m -2<CR>", { desc = "Move line/selection up" })
 
@@ -212,14 +214,15 @@ vim.keymap.set("n", "<F2>", "<cmd>:edit ~/.config/nvim/init.lua<CR>", { desc = "
 vim.keymap.set({ "n", "i" }, "<F5>", "<cmd>:w<CR>", { desc = "Save current file" })
 vim.keymap.set("n", "<leader>p", '"_dP', { desc = "[P]aste without overwriting buffer" })
 vim.keymap.set({ "n", "i" }, "<F12>", smartQuit, { desc = "Smart Quit" })
-vim.keymap.set({ "n", "i" }, "<F3>", bashList, { desc = "Run a bash script" })
 vim.keymap.set("n", "<C-f>", '<cmd>:lua require("harpoon.ui").toggle_quick_menu()<CR>')
 vim.keymap.set("n", "<F6>", '<cmd>:lua require("harpoon.mark").toggle_file()<CR>')
+
+-- Old from before Basher
+-- vim.keymap.set({ "n", "i" }, "<F3>", bashList, { desc = "Run a bash script" })
 
 vim.keymap.set("n", "<C-n>", '<cmd>:lua require("harpoon.ui").nav_next()<CR>')
 vim.keymap.set("n", "<C-p>", '<cmd>:lua require("harpoon.ui").nav_prev()<CR>')
 
---TODO: make it change to normal mode when switching
 vim.keymap.set({ "n", "i" }, "<A-d>", "<Esc><cmd>:wincmd l<CR>")
 vim.keymap.set({ "n", "i" }, "<A-a>", "<Esc><cmd>:wincmd h<CR>")
 vim.keymap.set({ "n", "i" }, "<A-w>", "<Esc><cmd>:wincmd k<CR>")
@@ -256,10 +259,11 @@ vim.keymap.set("i", ">", function()
 	smoothDoubleQuotes(">")
 end)
 
-vim.keymap.set("n", "<F3>", '<cmd>:lua require("Basher").showMainWin()<CR>')
+vim.keymap.set("n", "<F3>", '<cmd>:lua require("Basher").openMainWin()<CR>')
 
 --for some reason puts a capital "A" and tries to execute it
 --found this is because colorscheme menu does this, TODO: fix this for other options
+--haven't had a use for this except changing colorscheme so won't change this until I need to
 vim.keymap.set("n", "<C-F5>", "<cmd>@:<CR><Backspace><Esc>A")
 
 vim.keymap.set("n", "<F7>", '<cmd>:lua require("dapui").toggle()<CR>')
@@ -422,6 +426,7 @@ require("lazy").setup({
 			require("which-key").setup()
 
 			-- Document existing key chains
+			-- TODO: which-key has been updated, need to update this
 			require("which-key").register({
 				["<leader>c"] = { name = "[C]ode", _ = "which_key_ignore" },
 				["<leader>d"] = { name = "[D]ocument", _ = "which_key_ignore" },
@@ -1062,7 +1067,7 @@ require("lazy").setup({
 
 	{ "ThePrimeagen/harpoon", opts = {} },
 
-	{ "Basher", dir = "~/projects/Basher", opts = { funOnStart = false, pathMaxDirs = 0 } }, --TODO working on my custom plugin
+	{ "Basher", dir = "~/projects/Basher", opts = { funOnStart = false, pathMaxDirs = 0 } }, -- TODO: working on my custom plugin
 
 	{ "mfussenegger/nvim-dap" },
 
