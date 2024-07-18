@@ -106,6 +106,7 @@ vim.keymap.set("n", "<leader>q", vim.diagnostic.setloclist, { desc = "Open diagn
 
 -- Exit terminal mode in the builtin terminal with a shortcut that is a bit easier
 -- for people to discover. Otherwise, you normally need to press <C-\><C-n>, which
+--
 -- is not what someone will guess without a bit more experience.
 --
 -- NOTE: This won't work in all terminal emulators/tmux/etc. Try your own mapping
@@ -193,7 +194,37 @@ local function smoothDoubleQuotes(char)
 	end
 end
 
---rienovie      \/keybinds\/      /\bash files & functions/\
+local function moveLinesUp()
+	local vEnd = vim.api.nvim_win_get_cursor(0)[1]
+	local vStart = vim.fn.getpos("v")[2]
+	local moveAmount = math.abs(vEnd - vStart) + 1
+	local lineToMove = math.min(vEnd, vStart) - 1
+
+	vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("<Esc>", true, false, true), "n", true)
+	vim.api.nvim_win_set_cursor(0, { lineToMove, 0 })
+	local cmdLine = ":m+" .. moveAmount
+	vim.cmd(cmdLine)
+	vim.api.nvim_win_set_cursor(0, { math.max(vEnd, vStart) - 1, 0 })
+	local fkeys = "$v" .. moveAmount - 1 .. "k0"
+	vim.api.nvim_feedkeys(fkeys, "n", true)
+end
+
+local function moveLinesDown()
+	local vEnd = vim.api.nvim_win_get_cursor(0)[1]
+	local vStart = vim.fn.getpos("v")[2]
+	local moveAmount = math.abs(vEnd - vStart) + 2
+	local lineToMove = math.max(vEnd, vStart) + 1
+
+	vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("<Esc>", true, false, true), "n", true)
+	vim.api.nvim_win_set_cursor(0, { lineToMove, 0 })
+	local cmdLine = ":m-" .. moveAmount
+	vim.cmd(cmdLine)
+	vim.api.nvim_win_set_cursor(0, { math.max(vEnd, vStart) + 1, 0 })
+	local fkeys = "$v" .. moveAmount - 2 .. "k0"
+	vim.api.nvim_feedkeys(fkeys, "n", true)
+end
+
+--rienovie      \/keybinds\/      /\functions/\
 
 vim.keymap.set({ "n", "v" }, "<C-j>", '<cmd>call smoothie#do("<C-D>zz")<CR>', { desc = "Center line when moving down" })
 vim.keymap.set({ "n", "v" }, "<C-k>", '<cmd>call smoothie#do("<C-U>zz")<CR>', { desc = "Center line when moving up" })
@@ -205,14 +236,14 @@ vim.keymap.set("i", "<A-j>", "<down>", { noremap = true })
 
 vim.keymap.set("i", "<S-Backspace>", "<Delete>")
 
--- TODO: need to make this actually work with multiple lines, it's a but more involved
--- Maybe not? I think I rememeber seeing something like dp worked?
-vim.keymap.set({ "n", "i", "v" }, "<S-A-j>", "<cmd>:m +1<CR>", { desc = "Move line/selection down" })
-vim.keymap.set({ "n", "i", "v" }, "<S-A-k>", "<cmd>:m -2<CR>", { desc = "Move line/selection up" })
+vim.keymap.set({ "n", "i" }, "<S-A-j>", "<cmd>:m+<CR>", { desc = "Move line/selection down" })
+vim.keymap.set({ "n", "i" }, "<S-A-k>", "<cmd>:m-2<CR>", { desc = "Move line/selection up" })
+vim.keymap.set("v", "<S-A-j>", moveLinesDown)
+vim.keymap.set("v", "<S-A-k>", moveLinesUp)
 
 vim.keymap.set("n", "<F2>", "<cmd>:edit ~/.config/nvim/init.lua<CR>", { desc = "Edit init.lua file" })
 vim.keymap.set({ "n", "i" }, "<F5>", "<cmd>:w<CR>", { desc = "Save current file" })
-vim.keymap.set("n", "<leader>p", '"_dP', { desc = "[P]aste without overwriting buffer" })
+vim.keymap.set("v", "<leader>p", '"_dP', { desc = "[P]aste without overwriting buffer" })
 vim.keymap.set({ "n", "i" }, "<F12>", smartQuit, { desc = "Smart Quit" })
 vim.keymap.set("n", "<C-f>", '<cmd>:lua require("harpoon.ui").toggle_quick_menu()<CR>')
 vim.keymap.set("n", "<F6>", '<cmd>:lua require("harpoon.mark").toggle_file()<CR>')
