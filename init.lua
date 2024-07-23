@@ -290,7 +290,11 @@ vim.keymap.set("i", ">", function()
 	smoothDoubleQuotes(">")
 end)
 
-vim.keymap.set("n", "<F3>", '<cmd>:lua require("Basher").openMainWin()<CR>')
+vim.keymap.set({ "n", "i" }, "<F3>", '<cmd>:lua require("Basher").toggleMainWin()<CR>')
+vim.keymap.set({ "n", "i" }, "<C-1>", '<cmd>:lua require("Basher").runScript(1)<CR>')
+vim.keymap.set({ "n", "i" }, "<C-2>", '<cmd>:lua require("Basher").runScript(2)<CR>')
+vim.keymap.set({ "n", "i" }, "<C-3>", '<cmd>:lua require("Basher").runScript(3)<CR>')
+vim.keymap.set({ "n", "i" }, "<C-4>", '<cmd>:lua require("Basher").runScript(4)<CR>')
 
 --for some reason puts a capital "A" and tries to execute it
 --found this is because colorscheme menu does this, TODO: fix this for other options
@@ -366,7 +370,11 @@ require("lazy").setup({
 			"3rd/image.nvim",
 		},
 		config = function()
-			vim.cmd("Neotree")
+			require("neo-tree").setup({
+				close_if_last_window = true,
+			})
+			vim.cmd("Neotree show")
+			vim.api.nvim_win_set_width(0, 25)
 		end,
 	},
 
@@ -458,20 +466,16 @@ require("lazy").setup({
 
 			-- Document existing key chains
 			-- TODO: which-key has been updated, need to update this
-			require("which-key").register({
-				["<leader>c"] = { name = "[C]ode", _ = "which_key_ignore" },
-				["<leader>d"] = { name = "[D]ocument", _ = "which_key_ignore" },
-				["<leader>r"] = { name = "[R]ename", _ = "which_key_ignore" },
-				["<leader>s"] = { name = "[S]earch", _ = "which_key_ignore" },
-				["<leader>w"] = { name = "[W]orkspace", _ = "which_key_ignore" },
-				["<leader>t"] = { name = "[T]oggle", _ = "which_key_ignore" },
-				["<leader>h"] = { name = "Git [H]unk", _ = "which_key_ignore" },
-				["<leader>x"] = { name = "Trouble", _ = "which_key_ignore" },
+			require("which-key").add({
+				{ "<leader>c", desc = "[C]ode" },
+				{ "<leader>d", desc = "[D]ocument" },
+				{ "<leader>r", desc = "[R]ename" },
+				{ "<leader>s", desc = "[S]earch" },
+				{ "<leader>w", desc = "[W]orkspace" },
+				{ "<leader>t", desc = "[T]oggle" },
+				{ "<leader>h", desc = "Git [H]unk", mode = { "n", "v" } },
+				{ "<leader>x", desc = "Trouble" },
 			})
-			-- visual mode
-			require("which-key").register({
-				["<leader>h"] = { "Git [H]unk" },
-			}, { mode = "v" })
 		end,
 	},
 
@@ -1098,7 +1102,10 @@ require("lazy").setup({
 
 	{ "ThePrimeagen/harpoon", opts = {} },
 
-	{ "Basher", dir = "~/projects/Basher", opts = { funOnStart = false, pathMaxDirs = 0 } }, -- TODO: working on my custom plugin
+	-- Local version to use when editing
+	{ "Basher", dir = "~/projects/Basher", opts = { funOnStart = false, pathMaxDirs = 1 } },
+	-- Version to test from git
+	-- { "rienovie/Basher", opts = {} },
 
 	{ "mfussenegger/nvim-dap" },
 
