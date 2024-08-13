@@ -224,7 +224,35 @@ local function moveLinesDown()
 	vim.api.nvim_feedkeys(fkeys, "n", true)
 end
 
+local function openNotesFile()
+	local NotesBuffer = vim.api.nvim_create_buf(false, true)
+	local popupOpts = {
+		title = "Rienovie Neovim Notes",
+		line = math.floor(((vim.o.lines - 25) / 2) - 1),
+		col = math.floor((vim.o.columns - 90) / 2),
+		minwidth = 90,
+		minheight = 25,
+		borderchars = { "═", "║", "═", "║", "╔", "╗", "╝", "╚" },
+		border = true,
+	}
+
+	local win_id, _ = require("plenary.popup").create(NotesBuffer, popupOpts)
+	vim.api.nvim_win_set_var(win_id, "winhl", "Notes")
+	vim.opt_local.number = true
+	vim.opt_local.cursorline = true
+	vim.opt_local.cursorlineopt = "both"
+
+	vim.api.nvim_buf_set_keymap(NotesBuffer, "n", "<Esc>", "<cmd>:q!<CR>", { noremap = true, silent = true })
+
+	local file = vim.fn.stdpath("data") .. "/Notes.txt"
+	vim.api.nvim_buf_call(NotesBuffer, function()
+		vim.cmd("edit " .. file)
+	end)
+end
+
 --rienovie      \/keybinds\/      /\functions/\
+
+vim.keymap.set({ "n", "v", "i" }, "<F4>", openNotesFile, { noremap = true })
 
 vim.keymap.set({ "n", "v" }, "<C-j>", '<cmd>call smoothie#do("<C-D>zz")<CR>', { desc = "Center line when moving down" })
 vim.keymap.set({ "n", "v" }, "<C-k>", '<cmd>call smoothie#do("<C-U>zz")<CR>', { desc = "Center line when moving up" })
@@ -944,7 +972,7 @@ require("lazy").setup({
 					-- Accept ([y]es) the completion.
 					--  This will auto-import if your LSP supports it.
 					--  This will expand snippets if the LSP sent a snippet.
-					["<enter>"] = cmp.mapping.confirm({ select = true }),
+					-- ["<enter>"] = cmp.mapping.confirm({ select = true }),
 
 					-- If you prefer more traditional completion keymaps,
 					-- you can uncomment the following lines
