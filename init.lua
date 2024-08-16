@@ -236,8 +236,8 @@ local function openNotesFile()
 		border = true,
 	}
 
-	local win_id, _ = require("plenary.popup").create(NotesBuffer, popupOpts)
-	vim.api.nvim_win_set_var(win_id, "winhl", "Notes")
+	local _, pu = require("plenary.popup").create(NotesBuffer, popupOpts)
+	vim.api.nvim_win_set_var(pu.win_id, "winhl", "Notes")
 	vim.opt_local.number = true
 	vim.opt_local.cursorline = true
 	vim.opt_local.cursorlineopt = "both"
@@ -250,9 +250,9 @@ local function openNotesFile()
 	end)
 end
 
---rienovie      \/keybinds\/      /\functions/\
+--riekey      \/keybinds\/      /\functions/\
 
-vim.keymap.set({ "n", "v", "i" }, "<F4>", openNotesFile, { noremap = true })
+vim.keymap.set({ "n", "v", "i" }, "<F4>", '<cmd>:lua require("personalPlugin").openNotesFile()<CR>', { noremap = true })
 
 vim.keymap.set({ "n", "v" }, "<C-j>", '<cmd>call smoothie#do("<C-D>zz")<CR>', { desc = "Center line when moving down" })
 vim.keymap.set({ "n", "v" }, "<C-k>", '<cmd>call smoothie#do("<C-U>zz")<CR>', { desc = "Center line when moving up" })
@@ -349,8 +349,8 @@ vim.api.nvim_create_autocmd("TextYankPost", {
 	end,
 })
 
--- [[ Install `lazy.nvim` plugin manager ]]
---    See `:help lazy.nvim.txt` or https://github.com/folke/lazy.nvim for more info
+-- [[ Install `lazy.nvim` plugin manager ]
+--    See `:help lazy.nvim.txt` or https://github.com/folke/lazy.nvim for more inf
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
 if not vim.loop.fs_stat(lazypath) then
 	local lazyrepo = "https://github.com/folke/lazy.nvim.git"
@@ -1137,6 +1137,8 @@ require("lazy").setup({
 	{ "Basher", dir = "~/projects/Basher", opts = { funOnStart = false, pathMaxDirs = 1 } },
 	-- Version to test from git
 	-- { "rienovie/Basher", opts = {} },
+
+	{ "personalPlugin", dir = (vim.fn.stdpath("config") .. "/personalPlugin") },
 
 	{ "mfussenegger/nvim-dap" },
 

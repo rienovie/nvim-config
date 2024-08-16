@@ -2,3 +2,8 @@
 !init.lua
 !LICENSE
 !kitty.conf
+!personalPlugin
+!personalPlugin/*
+!personalPlugin/personalPlugin/personalPlugin.lua
+!personalPlugin/lua/personalPlugin/module.lua
+!personalPlugin/lua/personalPlugin.lua
