@@ -252,10 +252,17 @@ end
 
 --riekey      \/keybinds\/      /\functions/\
 
+local function setTabSettings()
+	vim.cmd("set shiftwidth=4")
+	vim.cmd("set tabstop=4")
+end
+
 vim.keymap.set({ "n", "v", "i" }, "<F4>", '<cmd>:lua require("personalPlugin").openNotesFile()<CR>', { noremap = true })
 
 vim.keymap.set({ "n", "v" }, "<C-j>", '<cmd>call smoothie#do("<C-D>zz")<CR>', { desc = "Center line when moving down" })
 vim.keymap.set({ "n", "v" }, "<C-k>", '<cmd>call smoothie#do("<C-U>zz")<CR>', { desc = "Center line when moving up" })
+
+vim.keymap.set("n", "<leader>stab", setTabSettings, { desc = "Set Tab Settings" })
 
 vim.keymap.set("i", "<A-l>", "<right>", { noremap = true })
 vim.keymap.set("i", "<A-h>", "<left>", { noremap = true })
@@ -382,8 +389,9 @@ require("lazy").setup({
 	--  This is equivalent to:
 	--    require('Comment').setup({})
 
-	--plug
+	--rieplug
 
+	{ "HiPhish/rainbow-delimiters.nvim" },
 	{ "bluz71/vim-moonfly-colors" },
 	{ "scottmckendry/cyberdream.nvim" },
 
@@ -1080,6 +1088,29 @@ require("lazy").setup({
 
 			-- ... and there is more!
 			--  Check out: https://github.com/echasnovski/mini.nvim
+			require("mini.indentscope").setup()
+
+			local mMap = require("mini.map")
+			mMap.setup({
+				integrations = {
+					mMap.gen_integration.builtin_search(),
+					mMap.gen_integration.diff(),
+					mMap.gen_integration.diagnostic(),
+				},
+				symbols = {
+					encode = mMap.gen_encode_symbols.dot("3x2"),
+					scroll_line = "▶",
+					scroll_view = "╎",
+				},
+				window = {
+					focusable = true,
+					winblend = 75,
+				},
+			})
+
+			vim.cmd("highlight MiniMapNormal guibg=Blue")
+
+			mMap.open()
 		end,
 	},
 	{ -- Highlight, edit, and navigate code
