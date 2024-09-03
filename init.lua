@@ -133,30 +133,6 @@ local function smartQuit()
 	end
 end
 
--- What I used before Basher
---
--- local function bashList()
--- 	local bashFiles = {
--- 		["BullScript ASM Build"] = "~/projects/BullScript/ASM/asmBuildScript.sh",
--- 		--["AumenType gdExtension Build"] = "~/projects/godot/4.2/AugmenType/src/cpp/extensionBuild.sh",
--- 	}
---
--- 	local names = {}
--- 	for name in pairs(bashFiles) do
--- 		table.insert(names, name)
--- 	end
---
--- 	table.insert(names, "Cancel")
---
--- 	vim.ui.select(names, { prompt = "Choose bash file to run." }, function(choice)
--- 		if choice == "Cancel" then
--- 			return
--- 		else
--- 			vim.cmd("!sh " .. bashFiles[choice])
--- 		end
--- 	end)
--- end
-
 local smoothDoubleCharChart = {
 	['"'] = '"',
 	["'"] = "'",
@@ -170,12 +146,20 @@ local smoothDoubleCharChart = {
 	["}"] = "}",
 }
 
+local doubleQuotesEnabled = true
+
 -- TODO: have a modifier key or something that'll let me ignore this somehow
 local function smoothDoubleQuotes(char)
 	local curWin = vim.api.nvim_get_current_win()
 	local pos = vim.fn.getcursorcharpos(curWin)
 	local curLine = vim.api.nvim_get_current_line()
 	local curChar = string.sub(curLine, pos[3], pos[3])
+	if not doubleQuotesEnabled then
+		local newLine = string.sub(curLine, 1, pos[3] - 1) .. char .. string.sub(curLine, pos[3])
+		vim.api.nvim_set_current_line(newLine)
+		vim.api.nvim_win_set_cursor(curWin, { pos[2], pos[3] })
+		return
+	end
 	if curChar == char then
 		vim.api.nvim_win_set_cursor(curWin, { pos[2], pos[3] })
 		return
@@ -258,18 +242,28 @@ local function setTabSettings()
 end
 
 vim.keymap.set({ "n", "v", "i" }, "<F4>", '<cmd>:lua require("personalPlugin").openNotesFile()<CR>', { noremap = true })
+vim.keymap.set("n", "<leader>z", "zfi{", { noremap = true })
 
 vim.keymap.set({ "n", "v" }, "<C-j>", '<cmd>call smoothie#do("<C-D>zz")<CR>', { desc = "Center line when moving down" })
 vim.keymap.set({ "n", "v" }, "<C-k>", '<cmd>call smoothie#do("<C-U>zz")<CR>', { desc = "Center line when moving up" })
 
-vim.keymap.set("n", "<leader>stab", setTabSettings, { desc = "Set Tab Settings" })
+vim.keymap.set("n", "<leader>st", setTabSettings, { desc = "Set Tab Settings" })
 
 vim.keymap.set("i", "<A-l>", "<right>", { noremap = true })
 vim.keymap.set("i", "<A-h>", "<left>", { noremap = true })
 vim.keymap.set("i", "<A-k>", "<up>", { noremap = true })
 vim.keymap.set("i", "<A-j>", "<down>", { noremap = true })
 
-vim.keymap.set("i", "<S-Backspace>", "<Delete>")
+vim.keymap.set("i", "<S-Backspace>", function()
+	local curWin = vim.api.nvim_get_current_win()
+	local pos = vim.fn.getcursorcharpos(curWin)
+	local curLine = vim.api.nvim_get_current_line()
+	vim.print(pos[3] .. string.len(curLine))
+	if pos[3] ~= string.len(curLine) + 1 then
+		local key = vim.api.nvim_replace_termcodes("<Delete>", true, true, true)
+		vim.api.nvim_feedkeys(key, "i", true)
+	end
+end)
 
 vim.keymap.set({ "n", "i" }, "<S-A-j>", "<cmd>:m+<CR>", { desc = "Move line/selection down" })
 vim.keymap.set({ "n", "i" }, "<S-A-k>", "<cmd>:m-2<CR>", { desc = "Move line/selection up" })
@@ -293,6 +287,11 @@ vim.keymap.set({ "n", "i" }, "<A-d>", "<Esc><cmd>:wincmd l<CR>")
 vim.keymap.set({ "n", "i" }, "<A-a>", "<Esc><cmd>:wincmd h<CR>")
 vim.keymap.set({ "n", "i" }, "<A-w>", "<Esc><cmd>:wincmd k<CR>")
 vim.keymap.set({ "n", "i" }, "<A-s>", "<Esc><cmd>:wincmd j<CR>")
+
+vim.keymap.set("i", "<A-q>", function()
+	doubleQuotesEnabled = not doubleQuotesEnabled
+	vim.print("Smooth Quotes " .. tostring(doubleQuotesEnabled))
+end)
 
 vim.keymap.set("i", '"', function()
 	smoothDoubleQuotes('"')
