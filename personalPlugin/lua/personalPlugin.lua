@@ -20,4 +20,8 @@ M.openNotesFile = function()
 	return module.open_notes_window()
 end
 
+M.closeNotesWindow = function()
+	return module.close_notes_window()
+end
+
 return M
