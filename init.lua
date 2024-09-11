@@ -89,7 +89,7 @@ vim.opt.inccommand = "split"
 vim.opt.cursorline = true
 
 -- Minimal number of screen lines to keep above and below the cursor.
-vim.opt.scrolloff = 5
+vim.opt.scrolloff = 8
 
 -- [[ Basic Keymaps ]]
 --  See `:help vim.keymap.set()`
@@ -208,33 +208,9 @@ local function moveLinesDown()
 	vim.api.nvim_feedkeys(fkeys, "n", true)
 end
 
-local function openNotesFile()
-	local NotesBuffer = vim.api.nvim_create_buf(false, true)
-	local popupOpts = {
-		title = "Rienovie Neovim Notes",
-		line = math.floor(((vim.o.lines - 25) / 2) - 1),
-		col = math.floor((vim.o.columns - 90) / 2),
-		minwidth = 90,
-		minheight = 25,
-		borderchars = { "═", "║", "═", "║", "╔", "╗", "╝", "╚" },
-		border = true,
-	}
-
-	local _, pu = require("plenary.popup").create(NotesBuffer, popupOpts)
-	vim.api.nvim_win_set_var(pu.win_id, "winhl", "Notes")
-	vim.opt_local.number = true
-	vim.opt_local.cursorline = true
-	vim.opt_local.cursorlineopt = "both"
-
-	vim.api.nvim_buf_set_keymap(NotesBuffer, "n", "<Esc>", "<cmd>:q!<CR>", { noremap = true, silent = true })
-
-	local file = vim.fn.stdpath("data") .. "/Notes.txt"
-	vim.api.nvim_buf_call(NotesBuffer, function()
-		vim.cmd("edit " .. file)
-	end)
-end
-
 --riekey      \/keybinds\/      /\functions/\
+
+vim.keymap.set("n", "<F9>", "<cmd>:UndotreeToggle<CR>", { noremap = true })
 
 local function setTabSettings()
 	vim.cmd("set shiftwidth=4")
@@ -258,7 +234,6 @@ vim.keymap.set("i", "<S-Backspace>", function()
 	local curWin = vim.api.nvim_get_current_win()
 	local pos = vim.fn.getcursorcharpos(curWin)
 	local curLine = vim.api.nvim_get_current_line()
-	vim.print(pos[3] .. string.len(curLine))
 	if pos[3] ~= string.len(curLine) + 1 then
 		local key = vim.api.nvim_replace_termcodes("<Delete>", true, true, true)
 		vim.api.nvim_feedkeys(key, "i", true)
@@ -277,9 +252,6 @@ vim.keymap.set({ "n", "i" }, "<F12>", smartQuit, { desc = "Smart Quit" })
 vim.keymap.set("n", "<C-f>", '<cmd>:lua require("harpoon.ui").toggle_quick_menu()<CR>')
 vim.keymap.set("n", "<F6>", '<cmd>:lua require("harpoon.mark").toggle_file()<CR>')
 
--- Old from before Basher
--- vim.keymap.set({ "n", "i" }, "<F3>", bashList, { desc = "Run a bash script" })
-
 vim.keymap.set("n", "<C-n>", '<cmd>:lua require("harpoon.ui").nav_next()<CR>')
 vim.keymap.set("n", "<C-p>", '<cmd>:lua require("harpoon.ui").nav_prev()<CR>')
 
@@ -288,7 +260,7 @@ vim.keymap.set({ "n", "i" }, "<A-a>", "<Esc><cmd>:wincmd h<CR>")
 vim.keymap.set({ "n", "i" }, "<A-w>", "<Esc><cmd>:wincmd k<CR>")
 vim.keymap.set({ "n", "i" }, "<A-s>", "<Esc><cmd>:wincmd j<CR>")
 
-vim.keymap.set("i", "<A-q>", function()
+vim.keymap.set({ "n", "i" }, "<C-q>", function()
 	doubleQuotesEnabled = not doubleQuotesEnabled
 	vim.print("Smooth Quotes " .. tostring(doubleQuotesEnabled))
 end)
@@ -337,9 +309,6 @@ vim.keymap.set("n", "<C-F5>", "<cmd>@:<CR><Backspace><Esc>A")
 
 vim.keymap.set("n", "<F7>", '<cmd>:lua require("dapui").toggle()<CR>')
 vim.keymap.set("n", "<F8>", '<cmd>:lua require("dap").toggle_breakpoint()<CR>')
-vim.keymap.set("n", "<F9>", '<cmd>:lua require("dap").step_over()<CR>')
-vim.keymap.set("n", "<F10>", '<cmd>:lua require("dap").step_into()<CR>)')
-vim.keymap.set("n", "<F11>", '<cmd>:lua require("dap").step_out()<CR>')
 
 -- [[ Basic Autocommands ]]
 --  See `:help lua-guide-autocommands`
@@ -389,6 +358,16 @@ require("lazy").setup({
 	--    require('Comment').setup({})
 
 	--rieplug
+
+	{
+		"mbbill/undotree",
+		config = function()
+			vim.cmd("let g:undotree_WindowLayout=3")
+			vim.cmd("let g:undotree_DiffAutoOpen=0")
+			vim.cmd("let g:undotree_SplitWidth=32")
+			vim.cmd("let g:undotree_SetFocusWhenToggle=1")
+		end,
+	},
 
 	{ "HiPhish/rainbow-delimiters.nvim" },
 	{ "bluz71/vim-moonfly-colors" },
@@ -1144,6 +1123,8 @@ require("lazy").setup({
 			--    - Treesitter + textobjects: https://github.com/nvim-treesitter/nvim-treesitter-textobjects
 		end,
 	},
+
+	{ "nvim-treesitter/nvim-treesitter-context", opts = {} },
 
 	-- The following two comments only work if you have downloaded the kickstart repo, not just copy pasted the
 	-- init.lua. If you want these files, they are in the repository, so you can just download them and
