@@ -1145,9 +1145,9 @@ require("lazy").setup({
 	{ "ThePrimeagen/harpoon", opts = {} },
 
 	-- Local version to use when editing
-	{ "Basher", dir = "~/projects/Basher", opts = { funOnStart = false, pathMaxDirs = 1 } },
+	-- { "Basher", dir = "~/projects/Basher", opts = { funOnStart = false, pathMaxDirs = 1 } },
 	-- Version to test from git
-	-- { "rienovie/Basher", opts = {} },
+	{ "rienovie/Basher", opts = {} },
 
 	{ "personalPlugin", dir = (vim.fn.stdpath("config") .. "/personalPlugin") },
 
