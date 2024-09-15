@@ -310,6 +310,8 @@ vim.keymap.set("n", "<C-F5>", "<cmd>@:<CR><Backspace><Esc>A")
 vim.keymap.set("n", "<F7>", '<cmd>:lua require("dapui").toggle()<CR>')
 vim.keymap.set("n", "<F8>", '<cmd>:lua require("dap").toggle_breakpoint()<CR>')
 
+vim.keymap.set("n", "<F10>", "<cmd>:Neotree float<CR>")
+
 -- [[ Basic Autocommands ]]
 --  See `:help lua-guide-autocommands`
 
@@ -360,9 +362,16 @@ require("lazy").setup({
 	--rieplug
 
 	{
+		"folke/noice.nvim",
+		event = "VeryLazy",
+		opts = {},
+		dependencies = { "MunifTanjim/nui.nvim", "rcarriga/nvim-notify" },
+	},
+
+	{
 		"mbbill/undotree",
 		config = function()
-			vim.cmd("let g:undotree_WindowLayout=3")
+			vim.cmd("let g:undotree_WindowLayout=2")
 			vim.cmd("let g:undotree_DiffAutoOpen=0")
 			vim.cmd("let g:undotree_SplitWidth=32")
 			vim.cmd("let g:undotree_SetFocusWhenToggle=1")
@@ -390,8 +399,6 @@ require("lazy").setup({
 			require("neo-tree").setup({
 				close_if_last_window = true,
 			})
-			vim.cmd("Neotree show")
-			vim.api.nvim_win_set_width(0, 25)
 		end,
 	},
 
@@ -1020,6 +1027,9 @@ require("lazy").setup({
 
 			-- You can configure highlights by doing something like:
 			vim.cmd.hi("Comment gui=none")
+
+			-- TODO: need to actually fix this and telescope edges not looking right
+			vim.cmd("highlight NotifyBackground guibg=black")
 		end,
 	},
 
@@ -1074,6 +1084,7 @@ require("lazy").setup({
 					mMap.gen_integration.builtin_search(),
 					mMap.gen_integration.diff(),
 					mMap.gen_integration.diagnostic(),
+					mMap.gen_integration.gitsigns(),
 				},
 				symbols = {
 					encode = mMap.gen_encode_symbols.dot("3x2"),
