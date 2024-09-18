@@ -9,7 +9,7 @@
 ========         ||   KICKSTART.NVIM   ||   |-----|          ========
 ========         ||                    ||   | === |          ========
 ========         ||                    ||   |-----|          ========
-========         ||:Tutor              ||   |:::::|          ========
+========         ||                    ||   |:::::|          ========
 ========         |'-..................-'|   |____o|          ========
 ========         `"")----------------(""`   ___________      ========
 ========        /::::::::::|  |::::::::::\  \ no mouse \     ========
@@ -1023,13 +1023,10 @@ require("lazy").setup({
 			-- Load the colorscheme here.
 			-- Like many other themes, this one has different styles, and you could load
 			-- any other, such as 'tokyonight-storm', 'tokyonight-moon', or 'tokyonight-day'.
-			vim.cmd.colorscheme("moonfly")
+			vim.cmd.colorscheme("tokyonight-night")
 
 			-- You can configure highlights by doing something like:
-			vim.cmd.hi("Comment gui=none")
-
-			-- TODO: need to actually fix this and telescope edges not looking right
-			vim.cmd("highlight NotifyBackground guibg=black")
+			-- vim.cmd.hi("Comment gui=none")
 		end,
 	},
 
