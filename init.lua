@@ -211,6 +211,7 @@ end
 --riekey      \/keybinds\/      /\functions/\
 
 vim.keymap.set("n", "<F9>", "<cmd>:UndotreeToggle<CR>", { noremap = true })
+vim.keymap.set({ "n", "i", "v" }, "<F11>", "<cmd>:lua require('mini.map').toggle()<CR>", { noremap = true })
 
 local function setTabSettings()
 	vim.cmd("set shiftwidth=4")
@@ -249,11 +250,13 @@ vim.keymap.set("n", "<F2>", "<cmd>:edit ~/.config/nvim/init.lua<CR>", { desc = "
 vim.keymap.set({ "n", "i" }, "<F5>", "<cmd>:w<CR>", { desc = "Save current file" })
 vim.keymap.set("v", "<leader>p", '"_dP', { desc = "[P]aste without overwriting buffer" })
 vim.keymap.set({ "n", "i" }, "<F12>", smartQuit, { desc = "Smart Quit" })
-vim.keymap.set("n", "<C-f>", '<cmd>:lua require("harpoon.ui").toggle_quick_menu()<CR>')
-vim.keymap.set("n", "<F6>", '<cmd>:lua require("harpoon.mark").toggle_file()<CR>')
+vim.keymap.set("n", "<F6>", "<cmd>:lua require('harpoon.ui').toggle_quick_menu()<CR>")
+vim.keymap.set("n", "<C-h>", "<cmd>:lua require('harpoon.mark').toggle_file()<CR>")
+vim.keymap.set("n", "<C-x>", "<cmd>BufferClose<CR>")
+vim.keymap.set("n", "<C-f>", "<cmd>BufferPick<CR>")
 
-vim.keymap.set("n", "<C-n>", '<cmd>:lua require("harpoon.ui").nav_next()<CR>')
-vim.keymap.set("n", "<C-p>", '<cmd>:lua require("harpoon.ui").nav_prev()<CR>')
+vim.keymap.set("n", "<C-n>", "<cmd>BufferNext<CR>")
+vim.keymap.set("n", "<C-p>", "<cmd>BufferPrevious<CR>")
 
 vim.keymap.set({ "n", "i" }, "<A-d>", "<Esc><cmd>:wincmd l<CR>")
 vim.keymap.set({ "n", "i" }, "<A-a>", "<Esc><cmd>:wincmd h<CR>")
@@ -465,6 +468,15 @@ require("lazy").setup({
 				changedelete = { text = "~" },
 			},
 		},
+	},
+
+	{
+		"romgrk/barbar.nvim",
+		dependencies = { "lewis6991/gitsigns.nvim", "nvim-tree/nvim-web-devicons" },
+		init = function()
+			vim.g.barbar_auto_setup = false
+		end,
+		opts = {},
 	},
 
 	-- NOTE: Plugins can also be configured to run Lua code when they are loaded.
@@ -804,6 +816,8 @@ require("lazy").setup({
 				pyright = {},
 				cmake = {},
 				pylsp = {},
+				gdscript = require("lspconfig").gdscript.setup({}),
+				asm_lsp = {},
 				-- rust_analyzer = {},
 				-- ... etc. See `:help lspconfig-all` for a list of all the pre-configured LSPs
 				--
