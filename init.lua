@@ -250,10 +250,10 @@ vim.keymap.set("n", "<F2>", "<cmd>:edit ~/.config/nvim/init.lua<CR>", { desc = "
 vim.keymap.set({ "n", "i" }, "<F5>", "<cmd>:w<CR>", { desc = "Save current file" })
 vim.keymap.set("v", "<leader>p", '"_dP', { desc = "[P]aste without overwriting buffer" })
 vim.keymap.set({ "n", "i" }, "<F12>", smartQuit, { desc = "Smart Quit" })
-vim.keymap.set("n", "<F6>", "<cmd>:lua require('harpoon.ui').toggle_quick_menu()<CR>")
-vim.keymap.set("n", "<C-h>", "<cmd>:lua require('harpoon.mark').toggle_file()<CR>")
+vim.keymap.set("n", "<C-f>", "<cmd>:lua require('harpoon.ui').toggle_quick_menu()<CR>")
+vim.keymap.set("n", "<F7>", "<cmd>:lua require('harpoon.mark').toggle_file()<CR>")
 vim.keymap.set("n", "<C-x>", "<cmd>BufferClose<CR>")
-vim.keymap.set("n", "<C-f>", "<cmd>BufferPick<CR>")
+vim.keymap.set("n", "<F6>", "<cmd>BufferPick<CR>")
 
 vim.keymap.set("n", "<C-n>", "<cmd>BufferNext<CR>")
 vim.keymap.set("n", "<C-p>", "<cmd>BufferPrevious<CR>")
@@ -310,8 +310,14 @@ vim.keymap.set({ "n", "i" }, "<C-4>", '<cmd>:lua require("Basher").runScript(4)<
 --haven't had a use for this except changing colorscheme so won't change this until I need to
 vim.keymap.set("n", "<C-F5>", "<cmd>@:<CR><Backspace><Esc>A")
 
-vim.keymap.set("n", "<F7>", '<cmd>:lua require("dapui").toggle()<CR>')
-vim.keymap.set("n", "<F8>", '<cmd>:lua require("dap").toggle_breakpoint()<CR>')
+vim.keymap.set("n", "<F8>", '<cmd>:lua require("dapui").toggle()<CR>')
+-- vim.keymap.set("n", "<F8>", '<cmd>:lua require("dap").toggle_breakpoint()<CR>')
+vim.keymap.set("n", "<leader>db", "<cmd>DapToggleBreakpoint<CR>", { desc = "[D]ap Toggle [B]reakpoint" })
+vim.keymap.set("n", "<leader>di", "<cmd>DapStepInto<CR>", { desc = "[D]ap Step [I]nto" })
+vim.keymap.set("n", "<leader>do", "<cmd>DapStepOver<CR>", { desc = "[D]ap Step [O]ver" })
+vim.keymap.set("n", "<leader>du", "<cmd>DapStepOut<CR>", { desc = "[D]ap Step O[u]t" })
+vim.keymap.set("n", "<leader>dc", "<cmd>DapContinue<CR>", { desc = "[D]ap [C]ontinue" })
+vim.keymap.set("n", "<leader>dt", "<cmd>DapTerminate<CR>", { desc = "[D]ap [T]erminate" })
 
 vim.keymap.set("n", "<F10>", "<cmd>:Neotree float<CR>")
 
@@ -641,7 +647,11 @@ require("lazy").setup({
 
 			-- `neodev` configures Lua LSP for your Neovim config, runtime and plugins
 			-- used for completion, annotations and signatures of Neovim apis
-			{ "folke/neodev.nvim", enabled = false, opts = {} },
+			{
+				"folke/neodev.nvim",
+				enabled = false,
+				opts = {},
+			},
 			{
 				"folke/lazydev.nvim",
 				ft = "lua", -- only load on lua files
@@ -650,6 +660,7 @@ require("lazy").setup({
 						-- See the configuration section for more details
 						-- Load luvit types when the `vim.uv` word is found
 						{ path = "luvit-meta/library", words = { "vim%.uv" } },
+						{ plugins = { "nvim-dap-ui" }, types = true },
 					},
 				},
 			},
@@ -1180,30 +1191,48 @@ require("lazy").setup({
 		dependencies = { "mfussenegger/nvim-dap", "nvim-neotest/nvim-nio" },
 		config = function()
 			require("dapui").setup()
-		end,
-	},
 
-	{
-		"tomblind/local-lua-debugger-vscode",
-		config = function()
 			local dap = require("dap")
-			dap.adapters["local-lua"] = {
+			dap.adapters.gdb = {
 				type = "executable",
-				command = "node",
-				args = {
-					"~/.local/share/nvim/lazy/local-lua-debugger-vscode//extension/debugAdapter.js",
+				command = "gdb",
+				args = { "--interpreter=dap", "--eval-command", "set print pretty on" },
+			}
+
+			dap.configurations.cpp = {
+				{
+					name = "Launch",
+					type = "gdb",
+					request = "launch",
+					program = function()
+						return vim.fn.input("Path to executable: ", vim.fn.getcwd() .. "/", "file")
+					end,
+					cwd = "${workspaceFolder}",
+					stopAtBeginningOfMainSubprogram = false,
 				},
-				enrich_config = function(config, on_config)
-					if not config["extensionPath"] then
-						local c = vim.deepcopy(config)
-						-- 💀 If this is missing or wrong you'll see
-						-- "module 'lldebugger' not found" errors in the dap-repl when trying to launch a debug session
-						c.extensionPath = "~/.local/share/nvim/lazy/local-lua-debugger-vscode/"
-						on_config(c)
-					else
-						on_config(config)
-					end
-				end,
+				{
+					name = "Select and attach to process",
+					type = "gdb",
+					request = "attach",
+					program = function()
+						return vim.fn.input("Path to executable: ", vim.fn.getcwd() .. "/", "file")
+					end,
+					pid = function()
+						local name = vim.fn.input("Executable name (filter): ")
+						return require("dap.utils").pick_process({ filter = name })
+					end,
+					cwd = "${workspaceFolder}",
+				},
+				{
+					name = "Attach to gdbserver :1234",
+					type = "gdb",
+					request = "attach",
+					target = "localhost:1234",
+					program = function()
+						return vim.fn.input("Path to executable: ", vim.fn.getcwd() .. "/", "file")
+					end,
+					cwd = "${workspaceFolder}",
+				},
 			}
 		end,
 	},
