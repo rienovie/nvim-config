@@ -208,6 +208,18 @@ local function moveLinesDown()
 	vim.api.nvim_feedkeys(fkeys, "n", true)
 end
 
+vim.api.nvim_create_autocmd("RecordingEnter", {
+	callback = function()
+		vim.print("Macro recording started...")
+	end,
+})
+
+vim.api.nvim_create_autocmd("RecordingLeave", {
+	callback = function()
+		vim.print("Macro recording finished.")
+	end,
+})
+
 --riekey      \/keybinds\/      /\functions/\
 
 vim.keymap.set("n", "<F9>", "<cmd>:UndotreeToggle<CR>", { noremap = true })
