@@ -387,14 +387,12 @@ require("lazy").setup({
 		end,
 	},
 
-	{ "HiPhish/rainbow-delimiters.nvim" },
-	{ "bluz71/vim-moonfly-colors" },
-	{ "scottmckendry/cyberdream.nvim" },
-
 	-- "gc" to comment visual regions/lines
 	{ "numToStr/Comment.nvim", opts = {} },
 
 	{ "psliwka/vim-smoothie" },
+
+	{ "pauchiner/pastelnight.nvim" },
 
 	{
 		"nvim-neo-tree/neo-tree.nvim",
@@ -1034,9 +1032,6 @@ require("lazy").setup({
 		end,
 	},
 
-	{ "DownloadedThemes", dir = "~/.config/nvim/themes" },
-	{ "bdesham/biogoo" },
-
 	{ -- You can easily change to a different colorscheme.
 		-- Change the name of the colorscheme plugin below, and then
 		-- change the command in the config to whatever the name of that colorscheme is.
@@ -1048,7 +1043,7 @@ require("lazy").setup({
 			-- Load the colorscheme here.
 			-- Like many other themes, this one has different styles, and you could load
 			-- any other, such as 'tokyonight-storm', 'tokyonight-moon', or 'tokyonight-day'.
-			vim.cmd.colorscheme("tokyonight-night")
+			vim.cmd.colorscheme("pastelnight-highcontrast")
 
 			-- You can configure highlights by doing something like:
 			-- vim.cmd.hi("Comment gui=none")
@@ -1118,8 +1113,6 @@ require("lazy").setup({
 					winblend = 75,
 				},
 			})
-
-			vim.cmd("highlight MiniMapNormal guibg=Blue")
 
 			mMap.open()
 		end,
