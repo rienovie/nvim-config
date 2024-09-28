@@ -10,7 +10,7 @@ M.close_notes_window = function()
 	for _, value in ipairs(lines) do
 		finalOut = finalOut .. value .. "\n"
 	end
-	local file = vim.fn.stdpath("data") .. "/Notes.txt"
+	local file = vim.fn.stdpath("config") .. "/Notes.txt"
 	io.output(file)
 	io.write(finalOut)
 	io.close()
@@ -40,7 +40,7 @@ M.open_notes_window = function()
 	local _, pu = require("plenary.popup").create(M.NotesBuffer, popupOpts)
 	vim.api.nvim_win_set_var(pu.win_id, "winhl", "Notes")
 
-	local file = vim.fn.stdpath("data") .. "/Notes.txt"
+	local file = vim.fn.stdpath("config") .. "/Notes.txt"
 	local fileContents = {}
 	for line in io.lines(file) do
 		table.insert(fileContents, line)
