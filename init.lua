@@ -148,7 +148,6 @@ local smoothDoubleCharChart = {
 
 local doubleQuotesEnabled = true
 
--- TODO: have a modifier key or something that'll let me ignore this somehow
 local function smoothDoubleQuotes(char)
 	local curWin = vim.api.nvim_get_current_win()
 	local pos = vim.fn.getcursorcharpos(curWin)
@@ -220,15 +219,100 @@ vim.api.nvim_create_autocmd("RecordingLeave", {
 	end,
 })
 
+local curTheme
+local startTheme
+
+local function loadTheme()
+	for line in io.lines(vim.fn.stdpath("config") .. "/vars") do
+		if string.find(line, "theme") then
+			local sTheme = string.sub(line, 7)
+			vim.cmd("colorscheme " .. sTheme)
+			curTheme = sTheme
+			startTheme = sTheme
+			vim.print("Theme '" .. sTheme .. "' has been loaded.")
+			return
+		end
+	end
+	vim.print("Theme not found from file: " .. vim.fn.stdpath("config") .. "/vars")
+end
+
+local function setTheme(newTheme)
+	vim.cmd("colorscheme " .. newTheme)
+	curTheme = newTheme
+	vim.print("Theme set to: " .. newTheme)
+	local fileOut = ""
+	local bThemeFound = false
+	for line in io.lines(vim.fn.stdpath("config") .. "/vars") do
+		if string.find(line, "theme") then
+			fileOut = fileOut .. "theme=" .. newTheme .. "\n"
+			bThemeFound = true
+		else
+			fileOut = fileOut .. line .. "\n"
+		end
+	end
+	if not bThemeFound then
+		fileOut = fileOut .. "theme=" .. newTheme .. "\n"
+	end
+	io.output(vim.fn.stdpath("config") .. "/vars")
+	io.write(fileOut)
+	io.close()
+end
+
+local function nextTheme()
+	local themeList = vim.fn.getcompletion("", "color")
+	if curTheme == nil then
+		setTheme(themeList[1])
+		return
+	end
+	for i, v in ipairs(themeList) do
+		if i == #themeList then
+			setTheme(themeList[1])
+			return
+		end
+		if curTheme == v then
+			setTheme(themeList[i + 1])
+			return
+		end
+	end
+end
+
+local function prevTheme()
+	local themeList = vim.fn.getcompletion("", "color")
+	if curTheme == nil then
+		setTheme(themeList[#themeList])
+		return
+	end
+	for i, v in ipairs(themeList) do
+		if curTheme == v then
+			if i ~= 1 then
+				setTheme(themeList[i - 1])
+				return
+			else
+				setTheme(themeList[#themeList])
+				return
+			end
+		end
+	end
+end
+
+local function randTheme()
+	local themeList = vim.fn.getcompletion("", "color")
+	setTheme(themeList[math.random(#themeList)])
+end
+
+local function resetTheme()
+	setTheme(startTheme)
+end
+
 --riekey      \/keybinds\/      /\functions/\
+
+vim.keymap.set("n", "<C-]>", nextTheme, { noremap = true })
+vim.keymap.set("n", "<C-[>", prevTheme, { noremap = true })
+vim.keymap.set("n", "<C-\\>", randTheme, { noremap = true })
+vim.keymap.set("n", "<C-0>", resetTheme, { noremap = true })
 
 vim.keymap.set("n", "<F9>", "<cmd>:UndotreeToggle<CR>", { noremap = true })
 vim.keymap.set({ "n", "i", "v" }, "<F11>", "<cmd>:lua require('mini.map').toggle()<CR>", { noremap = true })
-
-local function setTabSettings()
-	vim.cmd("set shiftwidth=4")
-	vim.cmd("set tabstop=4")
-end
 
 vim.keymap.set({ "n", "v", "i" }, "<F4>", '<cmd>:lua require("personalPlugin").openNotesFile()<CR>', { noremap = true })
 vim.keymap.set("n", "<leader>z", "zfi{", { noremap = true })
@@ -236,7 +320,10 @@ vim.keymap.set("n", "<leader>z", "zfi{", { noremap = true })
 vim.keymap.set({ "n", "v" }, "<C-j>", '<cmd>call smoothie#do("<C-D>zz")<CR>', { desc = "Center line when moving down" })
 vim.keymap.set({ "n", "v" }, "<C-k>", '<cmd>call smoothie#do("<C-U>zz")<CR>', { desc = "Center line when moving up" })
 
-vim.keymap.set("n", "<leader>st", setTabSettings, { desc = "Set Tab Settings" })
+vim.keymap.set("n", "<leader>st", function()
+	vim.cmd("set shiftwidth=4")
+	vim.cmd("set tabstop=4")
+end, { desc = "Set Tab Settings" })
 
 vim.keymap.set("i", "<A-l>", "<right>", { noremap = true })
 vim.keymap.set("i", "<A-h>", "<left>", { noremap = true })
@@ -385,8 +472,40 @@ require("lazy").setup({
 	{
 		"folke/noice.nvim",
 		event = "VeryLazy",
-		opts = {},
-		dependencies = { "MunifTanjim/nui.nvim", "rcarriga/nvim-notify" },
+		opts = {
+			lsp = {
+				override = {
+					["vim.lsp.util.convert_input_to_markdown_lines"] = true,
+					["vim.lsp.util.stylize_markdown"] = true,
+					["cmp.entry.get_documentation"] = true,
+				},
+			},
+			presets = {
+				bottom_search = true,
+				command_palette = true,
+				long_message_to_split = true,
+			},
+		},
+  -- stylua: ignore
+  keys = {
+    { "<leader>sn", "", desc = "+noice"},
+    { "<S-Enter>", function() require("noice").redirect(vim.fn.getcmdline()) end, mode = "c", desc = "Redirect Cmdline" },
+    { "<leader>snl", function() require("noice").cmd("last") end, desc = "Noice Last Message" },
+    { "<leader>snh", function() require("noice").cmd("history") end, desc = "Noice History" },
+    { "<leader>sna", function() require("noice").cmd("all") end, desc = "Noice All" },
+    { "<leader>snd", function() require("noice").cmd("dismiss") end, desc = "Dismiss All" },
+    { "<leader>snt", function() require("noice").cmd("pick") end, desc = "Noice Picker (Telescope/FzfLua)" },
+  },
+		config = function(_, opts)
+			-- HACK: noice shows messages from before it was enabled,
+			-- but this is not ideal when Lazy is installing plugins,
+			-- so clear the messages in this case.
+			if vim.o.filetype == "lazy" then
+				vim.cmd([[messages clear]])
+			end
+			require("noice").setup(opts)
+		end,
+		dependencies = { "MunifTanjim/nui.nvim", { "rcarriga/nvim-notify", opts = { background_colour = "#000000" } } },
 	},
 
 	{
@@ -405,6 +524,8 @@ require("lazy").setup({
 	{ "psliwka/vim-smoothie" },
 
 	{ "pauchiner/pastelnight.nvim" },
+
+	{ "tinted-theming/base16-vim" },
 
 	{
 		"nvim-neo-tree/neo-tree.nvim",
@@ -1055,7 +1176,8 @@ require("lazy").setup({
 			-- Load the colorscheme here.
 			-- Like many other themes, this one has different styles, and you could load
 			-- any other, such as 'tokyonight-storm', 'tokyonight-moon', or 'tokyonight-day'.
-			vim.cmd.colorscheme("pastelnight-highcontrast")
+			-- vim.cmd.colorscheme("tokyonight")
+			loadTheme()
 
 			-- You can configure highlights by doing something like:
 			-- vim.cmd.hi("Comment gui=none")
@@ -1185,9 +1307,16 @@ require("lazy").setup({
 	-- Local version to use when editing
 	-- { "Basher", dir = "~/projects/Basher", opts = { funOnStart = false, pathMaxDirs = 1 } },
 	-- Version to test from git
-	{ "rienovie/Basher", opts = {} },
+	{ "rienovie/Basher", event = "VeryLazy", opts = { silencePrints = false } },
 
-	{ "personalPlugin", dir = (vim.fn.stdpath("config") .. "/personalPlugin") },
+	{
+		"personalPlugin",
+		event = "VeryLazy",
+		dir = (vim.fn.stdpath("config") .. "/personalPlugin"),
+		config = function()
+			-- run stuff here if needed
+		end,
+	},
 
 	{ "mfussenegger/nvim-dap" },
 

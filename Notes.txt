@@ -2,3 +2,6 @@ preset window layout per folder
 
 when opening { someway to quickly have the second moved two lines down and tab to corrent indentation
 
+quick way to adjust size of windows by small amount or percentage maybe?
+
+

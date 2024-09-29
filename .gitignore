@@ -3,6 +3,7 @@
 !LICENSE
 !kitty.conf
 !Notes.txt
+!vars
 !personalPlugin
 !personalPlugin/*
 !personalPlugin/personalPlugin/personalPlugin.lua
