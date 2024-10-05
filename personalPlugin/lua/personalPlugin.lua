@@ -24,4 +24,8 @@ M.closeNotesWindow = function()
 	return module.close_notes_window()
 end
 
+M.toggleNotesWindow = function()
+	return module.toggle_notes_window()
+end
+
 return M

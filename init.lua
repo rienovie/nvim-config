@@ -314,7 +314,12 @@ vim.keymap.set("n", "<C-0>", resetTheme, { noremap = true })
 vim.keymap.set("n", "<F9>", "<cmd>:UndotreeToggle<CR>", { noremap = true })
 vim.keymap.set({ "n", "i", "v" }, "<F11>", "<cmd>:lua require('mini.map').toggle()<CR>", { noremap = true })
 
-vim.keymap.set({ "n", "v", "i" }, "<F4>", '<cmd>:lua require("personalPlugin").openNotesFile()<CR>', { noremap = true })
+vim.keymap.set(
+	{ "n", "v", "i" },
+	"<F4>",
+	'<cmd>:lua require("personalPlugin").toggleNotesWindow()<CR>',
+	{ noremap = true }
+)
 vim.keymap.set("n", "<leader>z", "zfi{", { noremap = true })
 
 vim.keymap.set({ "n", "v" }, "<C-j>", '<cmd>call smoothie#do("<C-D>zz")<CR>', { desc = "Center line when moving down" })
@@ -505,7 +510,10 @@ require("lazy").setup({
 			end
 			require("noice").setup(opts)
 		end,
-		dependencies = { "MunifTanjim/nui.nvim", { "rcarriga/nvim-notify", opts = { background_colour = "#000000" } } },
+		dependencies = {
+			"MunifTanjim/nui.nvim",
+			{ "rcarriga/nvim-notify", opts = { top_down = false, background_colour = "#000000" } },
+		},
 	},
 
 	{
@@ -539,6 +547,61 @@ require("lazy").setup({
 			require("neo-tree").setup({
 				close_if_last_window = true,
 			})
+		end,
+	},
+
+	{
+		"nvim-lualine/lualine.nvim",
+		dependencies = { "nvim-tree/nvim-web-devicons" },
+		config = function()
+			require("lualine").setup({
+				options = {
+					icons_enabled = true,
+					theme = "base16",
+					component_separators = { left = "", right = "" },
+					section_separators = { left = "", right = "" },
+					disabled_filetypes = {
+						statusline = {},
+						winbar = {},
+					},
+					ignore_focus = {},
+					always_divide_middle = true,
+					globalstatus = false,
+					refresh = {
+						statusline = 1000,
+						tabline = 1000,
+						winbar = 1000,
+					},
+				},
+				sections = {
+					-- lualine_a = { "mode" },
+					-- lualine_b = { "branch", "diff" },
+					-- lualine_c = { "filename" },
+					-- lualine_x = { "encoding", "fileformat", "filetype" },
+					-- lualine_y = { "diagnostics" },
+					-- lualine_z = { "location" },
+				},
+				inactive_sections = {
+					-- lualine_a = {},
+					-- lualine_b = {},
+					-- lualine_c = { "filename" },
+					-- lualine_x = { "location" },
+					-- lualine_y = {},
+					-- lualine_z = {},
+				},
+				tabline = {},
+				winbar = {
+					lualine_a = { "mode", "filename" },
+					lualine_b = { "filetype", "diagnostics" },
+					lualine_c = {},
+					lualine_x = {},
+					lualine_y = { "diff" },
+					lualine_z = { "progress", "location" },
+				},
+				inactive_winbar = {},
+				extensions = { "nvim-dap-ui", "nvim-tree", "trouble", "neo-tree", "lazy", "mason" },
+			})
+			vim.opt.laststatus = 0
 		end,
 	},
 
@@ -1213,17 +1276,17 @@ require("lazy").setup({
 			-- Simple and easy statusline.
 			--  You could remove this setup call if you don't like it,
 			--  and try some other statusline plugin
-			local statusline = require("mini.statusline")
-			-- set use_icons to true if you have a Nerd Font
-			statusline.setup({ use_icons = vim.g.have_nerd_font })
-
-			-- You can configure sections in the statusline by overriding their
-			-- default behavior. For example, here we set the section for
-			-- cursor location to LINE:COLUMN
-			---@diagnostic disable-next-line: duplicate-set-field
-			statusline.section_location = function()
-				return "%2l:%-2v"
-			end
+			-- local statusline = require("mini.statusline")
+			-- -- set use_icons to true if you have a Nerd Font
+			-- statusline.setup({ use_icons = vim.g.have_nerd_font })
+			--
+			-- -- You can configure sections in the statusline by overriding their
+			-- -- default behavior. For example, here we set the section for
+			-- -- cursor location to LINE:COLUMN
+			-- ---@diagnostic disable-next-line: duplicate-set-field
+			-- statusline.section_location = function()
+			-- 	return "%2l:%-2v"
+			-- end
 
 			-- ... and there is more!
 			--  Check out: https://github.com/echasnovski/mini.nvim
@@ -1248,7 +1311,7 @@ require("lazy").setup({
 				},
 			})
 
-			mMap.open()
+			-- mMap.open()
 		end,
 	},
 	{ -- Highlight, edit, and navigate code

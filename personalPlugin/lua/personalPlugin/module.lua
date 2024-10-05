@@ -10,6 +10,9 @@ M.close_notes_window = function()
 	for _, value in ipairs(lines) do
 		finalOut = finalOut .. value .. "\n"
 	end
+	while string.sub(finalOut, -1) == "\n" do
+		finalOut = string.sub(finalOut, 0, -2)
+	end
 	local file = vim.fn.stdpath("config") .. "/Notes.txt"
 	io.output(file)
 	io.write(finalOut)
@@ -46,6 +49,9 @@ M.open_notes_window = function()
 		table.insert(fileContents, line)
 	end
 
+	table.insert(fileContents, "")
+	table.insert(fileContents, "")
+
 	vim.api.nvim_buf_set_lines(M.NotesBuffer, 0, -1, false, fileContents)
 	vim.opt_local.number = true
 	vim.opt_local.cursorline = true
@@ -58,6 +64,16 @@ M.open_notes_window = function()
 		":lua require('personalPlugin').closeNotesWindow()<CR>",
 		{ noremap = true, silent = true }
 	)
+
+	vim.api.nvim_feedkeys("Gi", "n", false)
+end
+
+M.toggle_notes_window = function()
+	if M.notesWinOpen then
+		M.close_notes_window()
+	else
+		M.open_notes_window()
+	end
 end
 
 return M
