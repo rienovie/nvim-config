@@ -116,21 +116,52 @@ vim.keymap.set("t", "<Esc><Esc>", "<C-\\><C-n>", { desc = "Exit terminal mode" }
 -- Smart quit
 -- TODO: need to update, is a little wonky sometimes
 local function smartQuit()
-	if vim.bo[vim.api.nvim_get_current_buf()].modified then
-		vim.ui.select({ "Save and exit", "Exit without saving", "Cancel" }, {
-			prompt = "Unsaved changes detected. What do you want to do?",
-		}, function(choice)
-			if choice == "Save and exit" then
-				vim.cmd("wa")
-				vim.cmd("q")
-			elseif choice == "Exit without saving" then
-				vim.cmd("q!")
+	vim.ui.select({ "Cancel", "All", "Current" }, { prompt = "Close which?" }, function(choice)
+		if choice == "All" then
+			for _, buf in ipairs(vim.api.nvim_list_bufs()) do
+				if vim.bo[buf].modified then
+					vim.ui.select({ "Cancel", "Save and exit", "Exit without saving" }, {
+						prompt = "Unsaved changes detected on buffer "
+							.. vim.api.nvim_buf_get_name(buf)
+							.. ". Choose what to do...",
+					}, function(choice1)
+						if choice1 == "Save and exit" then
+							vim.cmd("wqall")
+							return
+						elseif choice1 == "Exit without saving" then
+							vim.cmd("qa!")
+							return
+						elseif choice1 == "Cancel" then
+							return
+						end
+					end)
+				end
 			end
-		end)
-	else
-		vim.cmd("q")
-		return
-	end
+			vim.cmd("qa")
+			return
+		elseif choice == "Current" then
+			if vim.bo[vim.api.nvim_get_current_buf()].modified then
+				vim.ui.select({ "Cancel", "Save and exit", "Exit without saving" }, {
+					prompt = "Unsaved changes detected. What do you want to do?",
+				}, function(choice2)
+					if choice2 == "Save and exit" then
+						vim.cmd("wq")
+						return
+					elseif choice2 == "Exit without saving" then
+						vim.cmd("q!")
+						return
+					elseif choice2 == "Cancel" then
+						return
+					end
+				end)
+			else
+				vim.cmd("q")
+				return
+			end
+		elseif choice == "Cancel" then
+			return
+		end
+	end)
 end
 
 local smoothDoubleCharChart = {
@@ -546,6 +577,15 @@ require("lazy").setup({
 		config = function()
 			require("neo-tree").setup({
 				close_if_last_window = true,
+			})
+		end,
+	},
+
+	{
+		"Shatur/neovim-session-manager",
+		config = function()
+			require("session_manager").setup({
+				autoload_mode = require("session_manager.config").AutoloadMode.CurrentDir,
 			})
 		end,
 	},
