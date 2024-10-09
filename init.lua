@@ -118,27 +118,32 @@ vim.keymap.set("t", "<Esc><Esc>", "<C-\\><C-n>", { desc = "Exit terminal mode" }
 local function smartQuit()
 	vim.ui.select({ "Cancel", "All", "Current" }, { prompt = "Close which?" }, function(choice)
 		if choice == "All" then
+			local bUnsaved = false
+			local sName = ""
 			for _, buf in ipairs(vim.api.nvim_list_bufs()) do
 				if vim.bo[buf].modified then
-					vim.ui.select({ "Cancel", "Save and exit", "Exit without saving" }, {
-						prompt = "Unsaved changes detected on buffer "
-							.. vim.api.nvim_buf_get_name(buf)
-							.. ". Choose what to do...",
-					}, function(choice1)
-						if choice1 == "Save and exit" then
-							vim.cmd("wqall")
-							return
-						elseif choice1 == "Exit without saving" then
-							vim.cmd("qa!")
-							return
-						elseif choice1 == "Cancel" then
-							return
-						end
-					end)
+					bUnsaved = true
+					sName = vim.api.nvim_buf_get_name(buf)
 				end
 			end
-			vim.cmd("qa")
-			return
+			if bUnsaved then
+				vim.ui.select({ "Cancel", "Save and exit", "Exit without saving" }, {
+					prompt = "Unsaved changes detected on buffer " .. sName .. ". Choose what to do...",
+				}, function(choice1)
+					if choice1 == "Save and exit" then
+						vim.cmd("wqall")
+						return
+					elseif choice1 == "Exit without saving" then
+						vim.cmd("qa!")
+						return
+					elseif choice1 == "Cancel" then
+						return
+					end
+				end)
+			else
+				vim.cmd("qa")
+				return
+			end
 		elseif choice == "Current" then
 			if vim.bo[vim.api.nvim_get_current_buf()].modified then
 				vim.ui.select({ "Cancel", "Save and exit", "Exit without saving" }, {
