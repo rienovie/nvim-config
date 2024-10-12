@@ -340,7 +340,48 @@ local function resetTheme()
 	setTheme(startTheme)
 end
 
+local function indentCurrentSelection()
+	if vim.fn.mode() == "v" then
+		local vEnd = vim.api.nvim_win_get_cursor(0)[1]
+		local vStart = vim.fn.getpos("v")[2]
+		local lines = vim.api.nvim_buf_get_lines(0, math.min(vStart, vEnd) - 1, math.max(vStart, vEnd), true)
+		for i, l in ipairs(lines) do
+			lines[i] = "\t" .. l
+		end
+		vim.api.nvim_buf_set_lines(0, math.min(vStart, vEnd) - 1, math.max(vStart, vEnd), true, lines)
+	else
+		vim.api.nvim_set_current_line("\t" .. vim.api.nvim_get_current_line())
+	end
+end
+
+local function deindentCurrentSelection()
+	if vim.fn.mode() == "v" then
+		local vEnd = vim.api.nvim_win_get_cursor(0)[1]
+		local vStart = vim.fn.getpos("v")[2]
+		local lines = vim.api.nvim_buf_get_lines(0, math.min(vStart, vEnd) - 1, math.max(vStart, vEnd), true)
+		for i, l in ipairs(lines) do
+			if string.sub(l, 1, 1) == "\t" then
+				lines[i] = string.sub(l, 2)
+			end
+		end
+		vim.api.nvim_buf_set_lines(0, math.min(vStart, vEnd) - 1, math.max(vStart, vEnd), true, lines)
+	else
+		local curLine = vim.api.nvim_get_current_line()
+		if string.sub(curLine, 1, 1) == "\t" then
+			vim.api.nvim_set_current_line(string.sub(curLine, 2))
+		end
+	end
+end
+
 --riekey      \/keybinds\/      /\functions/\
+
+vim.keymap.set({ "n", "v" }, "<leader>il", indentCurrentSelection, { noremap = true, desc = "[I]ndent [L]ine(s)." })
+vim.keymap.set(
+	{ "n", "v" },
+	"<leader>dl",
+	deindentCurrentSelection,
+	{ noremap = true, desc = "[D]e-Indent [L]ine(s)." }
+)
 
 vim.keymap.set("n", "<C-]>", nextTheme, { noremap = true })
 vim.keymap.set("n", "<C-[>", prevTheme, { noremap = true })
