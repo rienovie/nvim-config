@@ -65,6 +65,8 @@ M.open_notes_window = function()
 		{ noremap = true, silent = true }
 	)
 
+	-- to make sure in normal mode
+	vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("<Esc>", true, false, true), "n", false)
 	vim.api.nvim_feedkeys("Gi", "n", false)
 end
 
