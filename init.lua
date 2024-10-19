@@ -89,7 +89,7 @@ vim.opt.inccommand = "split"
 vim.opt.cursorline = true
 
 -- Minimal number of screen lines to keep above and below the cursor.
-vim.opt.scrolloff = 8
+vim.opt.scrolloff = 15
 
 -- [[ Basic Keymaps ]]
 --  See `:help vim.keymap.set()`
@@ -339,6 +339,7 @@ local function resetTheme()
 	setTheme(startTheme)
 end
 
+-- TODO: need to set to use either tab or spaces based on which the file uses
 local function indentCurrentSelection()
 	if vim.fn.mode() == "v" then
 		local vEnd = vim.api.nvim_win_get_cursor(0)[1]
