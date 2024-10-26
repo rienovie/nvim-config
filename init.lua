@@ -123,11 +123,15 @@ local function smartQuit()
 				if vim.bo[buf].modified then
 					bUnsaved = true
 					sName = vim.api.nvim_buf_get_name(buf)
+					local index = string.match(sName, ".*/()")
+					if index ~= nil then
+						sName = string.sub(sName, index)
+					end
 				end
 			end
 			if bUnsaved then
 				vim.ui.select({ "Cancel", "Save and exit", "Exit without saving" }, {
-					prompt = "Unsaved changes detected on buffer " .. sName .. ". Choose what to do...",
+					prompt = '"' .. sName .. '" has unsaved changes. Choose what to do...',
 				}, function(choice1)
 					if choice1 == "Save and exit" then
 						vim.cmd("wqall")
